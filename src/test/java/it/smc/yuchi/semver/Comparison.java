@@ -17,7 +17,7 @@ import org.junit.runners.Parameterized.Parameters;
  * @author Pier Paolo Ramon
  */
 @RunWith(Parameterized.class)
-public class Comparison {
+public class Comparison extends BaseTest {
 
 	protected String a;
 	protected String b;
@@ -55,7 +55,8 @@ public class Comparison {
 
 	@Parameters
 	public static Collection<Object[]> getParameters() {
-		return Arrays.asList(new Object[][] {
+		Object[] defaults = new Object[] {null, null, false};
+		Object[][] parameters = new Object[][] {
 			{"0.0.0", "0.0.0-foo"},
 			{"0.0.1", "0.0.0"},
 			{"1.0.0", "0.9.9"},
@@ -87,17 +88,9 @@ public class Comparison {
 			{"1.2.3-a.b.c.10.d.5", "1.2.3-a.b.c.5.d.100"},
 			{"1.2.3-r2", "1.2.3-r100"},
 			{"1.2.3-r100", "1.2.3-R2"}
-		})
-		.stream()
-		.map(args -> {
-			if (args.length == 2) {
-				return new Object[] { args[0], args[1], false };
-			}
-			else {
-				return args;
-			}
-		})
-		.collect(Collectors.toList());
+		};
+
+		return argsWithDefaults(defaults, parameters);
 	}
 
 }

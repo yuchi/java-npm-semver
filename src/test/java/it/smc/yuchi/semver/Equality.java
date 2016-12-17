@@ -17,7 +17,7 @@ import org.junit.runners.Parameterized.Parameters;
  * @author Pier Paolo Ramon
  */
 @RunWith(Parameterized.class)
-public class Equality {
+public class Equality extends BaseTest {
 
 	protected String a;
 	protected String b;
@@ -41,7 +41,8 @@ public class Equality {
 
 	@Parameters
 	public static Collection<Object[]> getParameters() {
-		return Arrays.asList(new Object[][] {
+		Object[] defaults = new Object[] {null, null, false};
+		Object[][] parameters = new Object[][] {
 			{"1.2.3", "v1.2.3", true},
 			{"1.2.3", "=1.2.3", true},
 			{"1.2.3", "v 1.2.3", true},
@@ -79,17 +80,9 @@ public class Equality {
 			{"1.2.3-beta+build", "1.2.3-beta+otherbuild"},
 			{"1.2.3+build", "1.2.3+otherbuild"},
 			{"  v1.2.3+build", "1.2.3+otherbuild"}
-		})
-		.stream()
-		.map(args -> {
-			if (args.length == 2) {
-				return new Object[] { args[0], args[1], false };
-			}
-			else {
-				return args;
-			}
-		})
-		.collect(Collectors.toList());
+		};
+
+		return argsWithDefaults(defaults, parameters);
 	}
 
 }
