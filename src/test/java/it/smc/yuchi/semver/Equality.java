@@ -1,8 +1,6 @@
 package it.smc.yuchi.semver;
 
-import java.util.Arrays;
 import java.util.Collection;
-import java.util.stream.Collectors;
 
 import org.junit.Assert;
 import org.junit.Test;
@@ -39,7 +37,7 @@ public class Equality extends BaseTest {
 		Assert.assertTrue(message, a.compareTo(b) == 0);
 	}
 
-	@Parameters
+	@Parameters(name = "{index}: ''{0}'' == ''{1}'' (loose = {2})")
 	public static Collection<Object[]> getParameters() {
 		Object[] defaults = new Object[] {null, null, false};
 		Object[][] parameters = new Object[][] {

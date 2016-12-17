@@ -4,6 +4,30 @@ import java.util.regex.Matcher;
 
 public class Version implements Comparable<Version> {
 
+	public static Version from(Object obj, boolean loose) {
+		if (obj == null) {
+			return null;
+		}
+		else if (obj instanceof Version) {
+			Version version = (Version)obj;
+
+			if (version.loose == loose) {
+				return version;
+			}
+			else {
+				return new Version(version.version, loose);
+			}
+		}
+		else {
+			try {
+				return new Version(String.valueOf(obj), loose);
+			}
+			catch (IllegalArgumentException iae) {
+				return null;
+			}
+		}
+	}
+
 	public Version(String raw) throws IllegalArgumentException {
 		this(raw, false);
 	}
@@ -16,7 +40,7 @@ public class Version implements Comparable<Version> {
 
 		REWrapper re = loose ? Constants.LOOSE : Constants.FULL;
 
-		Matcher m = re.getPattern().matcher(raw.trim());
+		Matcher m = re.match(raw.trim());
 
 		if (!m.matches()) {
 			throw new IllegalArgumentException("Invalid Version: " + raw);
