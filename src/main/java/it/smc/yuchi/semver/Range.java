@@ -30,6 +30,9 @@ public class Range {
 			catch (IllegalArgumentException iae) {
 				return null;
 			}
+			catch (IllegalStateException ise) {
+				return null;
+			}
 		}
 	}
 
