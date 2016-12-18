@@ -119,10 +119,36 @@ public class Version implements Comparable<Version> {
 		this.version = sb.toString();
 	}
 
+	public int getMajor() {
+		return this.major;
+	}
+
+	public int getMinor() {
+		return this.minor;
+	}
+
+	public int getPatch() {
+		return this.patch;
+	}
+
+	public Object[] getPrerelease() {
+		return this.prerelease;
+	}
+
+	public String[] getBuild() {
+		return this.build;
+	}
+
 	@Override
 	public boolean equals(Object obj) {
-		// TODO
-		return false;
+		if ((obj != null) && (obj instanceof Version)) {
+			Version other = (Version)obj;
+
+			return other.version.equals(this.version);
+		}
+		else {
+			return false;
+		}
 	}
 
 	@Override
