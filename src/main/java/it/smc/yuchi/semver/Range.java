@@ -1,8 +1,9 @@
 package it.smc.yuchi.semver;
 
+import java.text.MessageFormat;
+import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.HashSet;
-import java.util.Set;
+import java.util.List;
 import java.util.function.Predicate;
 import java.util.stream.Stream;
 
@@ -39,7 +40,7 @@ public class Range {
 	public Range(String raw, boolean loose) throws IllegalArgumentException {
 		this.raw = raw;
 		this.loose = loose;
-		this.set = new HashSet<Set<Comparator>>();
+		this.set = new ArrayList<List<Comparator>>();
 
 		String[] ranges = this.raw.trim().split("\\s*\\|\\|\\s*");
 
@@ -50,7 +51,7 @@ public class Range {
 		for (String range : ranges) {
 			range = range.trim();
 
-			Set<Comparator> comparators = parseRange(range);
+			List<Comparator> comparators = parseRange(range);
 
 			if (!comparators.isEmpty()) {
 				this.set.add(comparators);
@@ -63,6 +64,7 @@ public class Range {
 	}
 
 	public boolean isOutside(Version version, Direction dir) {
+
 		if (this.test(version)) {
 			return false;
 		}
@@ -72,18 +74,21 @@ public class Range {
 
 		Predicate<Integer> gt;
 		Predicate<Integer> lt;
+		Predicate<Integer> lte;
 		Operator op;
 		Operator ope;
 
 		if (dir == Direction.HIGH) {
 			gt = n -> n > 0;
 			lt = n -> n < 0;
+			lte = n -> n <= 0;
 			op = Operator.GT;
 			ope = Operator.GTE;
 		}
 		else if (dir == Direction.LOW) {
 			gt = n -> n < 0;
 			lt = n -> n > 0;
+			lte = n -> n >= 0;
 			op = Operator.LT;
 			ope = Operator.LTE;
 		}
@@ -91,7 +96,7 @@ public class Range {
 			throw new IllegalArgumentException();
 		}
 
-		for (Set<Comparator> comparators : this.set) {
+		for (List<Comparator> comparators : this.set) {
 			Comparator high = null;
 			Comparator low = null;
 
@@ -131,7 +136,7 @@ public class Range {
 			int compare = version.compareTo(low.version);
 
 			if (((low.operator == Operator.EQ) || (low.operator == op)) &&
-				lt.test(compare)) {
+				lte.test(compare)) {
 
 				return false;
 			}
@@ -144,8 +149,8 @@ public class Range {
 	}
 
 	public boolean test(Version version) {
-		for (Set<Comparator> comparators : this.set) {
-			if (testSet(version, comparators)) {
+		for (List<Comparator> comparators : this.set) {
+			if (testList(version, comparators)) {
 				return true;
 			}
 		}
@@ -153,7 +158,7 @@ public class Range {
 		return false;
 	}
 
-	protected Set<Comparator> parseRange(String range) {
+	protected List<Comparator> parseRange(String range) {
 		range = replaceHyphens(range);
 
 		range = Constants.COMPARATORTRIM.replace(
@@ -186,10 +191,10 @@ public class Range {
 
 		return comps
 			.map(comp -> new Comparator(comp, this.loose))
-			.collect(HashSet::new, HashSet::add, HashSet::addAll);
+			.collect(ArrayList::new, ArrayList::add, ArrayList::addAll);
 	}
 
-	protected boolean testSet(Version version, Set<Comparator> comparators) {
+	protected boolean testList(Version version, List<Comparator> comparators) {
 		for (Comparator comparator : comparators) {
 			if (!comparator.test(version)) {
 				return false;
@@ -583,6 +588,6 @@ public class Range {
 
 	protected final boolean loose;
 	protected final String raw;
-	protected final Set<Set<Comparator>> set;
+	protected final List<List<Comparator>> set;
 
 }
