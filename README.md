@@ -15,6 +15,18 @@ range.test(version) // true
 ```
 
 
+Publishing
+----------
+
+```
+$ trash build
+$ trash tmp
+$ mkdir tmp
+$ gradle clean preparePublish publish
+$ gradle clean preparePublish publish # yes you need to launch it twice
+```
+
+
 License
 -------
 

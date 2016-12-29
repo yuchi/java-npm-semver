@@ -1,11 +1,33 @@
 
+plugins {
+	id 'nebula.maven-publish' version '4.9.1'
+	id 'nebula.javadoc-jar' version '4.9.1'
+	id 'nebula.source-jar' version '4.9.1'
+	id 'nebula.info' version '3.4.0'
+	id 'nebula.contacts' version '3.0.1'
+}
+
 apply plugin: 'java'
-apply plugin: 'maven-publish'
 apply plugin: 'signing'
+apply plugin: 'nebula.maven-publish'
+apply plugin: 'nebula.javadoc-jar'
+apply plugin: 'nebula.source-jar'
+apply plugin: "nebula.info"
+apply plugin: "nebula.contacts"
 
 sourceCompatibility = 1.8
 version = '1.0.0'
 group = 'com.github.yuchi'
+description = 'SemVer implementation that matches npm’s'
+
+contacts {
+	'pierpaolo.ramon@smc.it' {
+		moniker 'Pier Paolo Ramon'
+		github 'yuchi'
+		twitter '_pier'
+		role 'owner'
+	}
+}
 
 repositories {
 	mavenCentral()
@@ -13,23 +35,83 @@ repositories {
 
 dependencies {
 	testCompile 'junit:junit:4.12'
+	compile 'org.eclipse.jgit:org.eclipse.jgit:3.2.0.201312181205-r'
+}
+
+ext {
+	pomFile = file("${project.projectDir}/tmp/pom.xml")
+}
+
+configurations {
+	pom
+}
+
+artifacts {
+	archives jar
+	archives sourceJar
+	archives javadocJar
+	if (pomFile.exists()) {
+		pom pomFile
+	}
+}
+
+task signJars (type: Sign, dependsOn: [jar, javadocJar, sourceJar]) {
+	sign configurations.archives
+}
+
+task signPom(type: Sign) {
+	if (pomFile.exists()) {
+		sign configurations.pom
+	}
+}
+
+task preparePublish(dependsOn: [signJars, signPom])
+
+def getPomSignatures = {
+	if (!project.ext.pomFile.exists()) {
+		return [];
+	}
+
+	return [
+		[
+			archive: project.tasks.signPom.signatureFiles.collect{it}[0],
+			classifier: null,
+			extension: 'pom.asc'
+		]
+	];
+}
+
+def getJarsSignatures = {
+	def allFiles = project.tasks.signJars.signatureFiles.collect { it }
+	def signedSources = allFiles.find { it.name.contains('-sources') }
+	def signedJavadoc = allFiles.find { it.name.contains('-javadoc') }
+	def signedJar = (allFiles - [signedSources, signedJavadoc])[0]
+	return [
+		[archive: signedSources, classifier: 'sources', extension: 'jar.asc'],
+		[archive: signedJavadoc, classifier: 'javadoc', extension: 'jar.asc'],
+		[archive: signedJar, classifier: null, extension: 'jar.asc']
+	]
 }
 
 publishing {
 	publications {
-		mavenJava(MavenPublication) {
-			from components.java
+		nebula(MavenPublication) {
+			pom.withXml {
+				asNode().children().each {node ->
+					if (node.name() == 'properties') {
+						node.children().each {prop ->
+							if (prop.name() == 'nebula_Build_Date') {
+								println 'Removing nasty build date!'
+								prop.setValue('')
+							}
+						}
+					}
+				}
+			}
+
 			pom.withXml {
 				asNode().children().last() + {
 					resolveStrategy = Closure.DELEGATE_FIRST
-					name 'npm-semver'
-					description 'SemVer implementation that matches npm’s'
-					url 'https://github.com/yuchi/java-npm-semver'
-					scm {
-						url 'https://github.com/yuchi/java-npm-semver'
-						connection 'https://github.com/yuchi/java-npm-semver.git'
-						developerConnection 'https://github.com/yuchi/java-npm-semver.git'
-					}
 					licenses {
 						license {
 							name 'GNU Lesser General Public License, version 2.1'
@@ -37,16 +119,35 @@ publishing {
 							distribution 'repo'
 						}
 					}
-					developers {
-						developer {
-							id 'yuchi'
-							name 'Pier Paolo Ramon'
-							email 'pierpaolo.ramon@smc.it'
-						}
-					}
+				}
+			}
+
+			pom.withXml {
+				if (!project.ext.pomFile.exists()) {
+					writeTo(project.ext.pomFile)
 				}
 			}
 		}
+
+		gpgJars (MavenPublication) {
+			getPomSignatures().each {signature ->
+				artifact (signature.archive) {
+					classifier = signature.classifier
+					extension = signature.extension
+				}
+			}
+		}
+
+		gpgJars (MavenPublication) {
+			getJarsSignatures().each {signature ->
+				artifact (signature.archive) {
+					classifier = signature.classifier
+					extension = signature.extension
+				}
+			}
+		}
+
+		// TODO gpgPom
 	}
 
 	repositories {
