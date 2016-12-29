@@ -1,4 +1,4 @@
-package it.smc.yuchi.semver;
+package com.github.yuchi.semver;
 
 import java.text.MessageFormat;
 import java.util.ArrayList;

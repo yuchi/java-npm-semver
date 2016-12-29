@@ -1,4 +1,4 @@
-package it.smc.yuchi.semver;
+package com.github.yuchi.semver;
 
 public enum Operator {
 	ANY, EQ, NEQ, GT, GTE, LT, LTE;

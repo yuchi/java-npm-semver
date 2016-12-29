@@ -1,4 +1,4 @@
-package it.smc.yuchi.semver;
+package com.github.yuchi.semver;
 
 import java.util.Collection;
 
@@ -7,6 +7,9 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
 import org.junit.runners.Parameterized.Parameters;
+
+import com.github.yuchi.semver.Direction;
+import com.github.yuchi.semver.SemVer;
 
 @RunWith(Parameterized.class)
 public class LessThenRange extends BaseTest {
