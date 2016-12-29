@@ -1,13 +1,61 @@
 
 apply plugin: 'java'
+apply plugin: 'maven-publish'
+apply plugin: 'signing'
 
 sourceCompatibility = 1.8
+version = '1.0.0'
+group = 'com.github.yuchi'
 
 repositories {
 	mavenCentral()
 }
 
 dependencies {
-	compile 'org.slf4j:slf4j-api:1.7.21'
 	testCompile 'junit:junit:4.12'
+}
+
+publishing {
+	publications {
+		mavenJava(MavenPublication) {
+			from components.java
+			pom.withXml {
+				asNode().children().last() + {
+					resolveStrategy = Closure.DELEGATE_FIRST
+					name 'npm-semver'
+					description 'SemVer implementation that matches npm’s'
+					url 'https://github.com/yuchi/java-npm-semver'
+					scm {
+						url 'https://github.com/yuchi/java-npm-semver'
+						connection 'https://github.com/yuchi/java-npm-semver.git'
+						developerConnection 'https://github.com/yuchi/java-npm-semver.git'
+					}
+					licenses {
+						license {
+							name 'GNU Lesser General Public License, version 2.1'
+							url 'https://www.gnu.org/licenses/lgpl-2.1.html'
+							distribution 'repo'
+						}
+					}
+					developers {
+						developer {
+							id 'yuchi'
+							name 'Pier Paolo Ramon'
+							email 'pierpaolo.ramon@smc.it'
+						}
+					}
+				}
+			}
+		}
+	}
+
+	repositories {
+		maven {
+			url 'https://oss.sonatype.org/service/local/staging/deploy/maven2/'
+			credentials {
+				username = project['maven.sonatype.credentials.username']
+				password = project['maven.sonatype.credentials.password']
+			}
+		}
+	}
 }
