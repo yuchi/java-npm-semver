@@ -38,6 +38,75 @@ range.test(version) // true
 ```
 
 
+Full Usage
+----------
+
+#### Version comparison
+
+```java
+boolean loose = false;
+
+Version v1 = Version.from("1.2.3", loose);
+String v2 = Version.from("1.3.0", loose);
+
+v1.compareTo(v2); // -1
+v2.compareTo(v1); // +1
+v1.compareTo(v1); //  0
+```
+
+#### In Range tests
+
+```java
+boolean loose = false;
+
+Version v = Version.from("1.2.3", loose);
+Range r = Range.from("^1.0.0", loose);
+
+r.test(v); // true
+```
+
+#### Range boundaries test
+
+```java
+boolean loose = false;
+
+SemVer.isGreaterThenRange("1.3.0", ">1.0.0 <1.4.0", loose); // false
+SemVer.isGreaterThenRange("1.5.0", ">1.0.0 <1.4.0", loose); // true
+SemVer.isGreaterThenRange("0.9.0", ">1.0.0 <1.4.0", loose); // false
+
+SemVer.isLessThenRange("1.3.0", ">1.0.0 <1.4.0", loose); // false
+SemVer.isLessThenRange("1.5.0", ">1.0.0 <1.4.0", loose); // false
+SemVer.isLessThenRange("0.9.0", ">1.0.0 <1.4.0", loose); // true
+```
+
+#### Sorting
+
+```java
+List<Version> versions = new ArrayList<Version>();
+
+versions.add(Version.from("4.2.0", false));
+versions.add(Version.from("1.8.0", false));
+versions.add(Version.from("1.2.0", false));
+
+versions.sort(new VersionComparator()); // { "4.2.0", "1.8.0", "1.2.0" }
+```
+
+#### Versions Stream filtering
+
+```java
+
+List<Version> versions = new ArrayList<Version>();
+
+versions.add(Version.from("4.2.0", false));
+versions.add(Version.from("1.8.0", false));
+versions.add(Version.from("1.2.0", false));
+
+Range range = Range.from(">3.0.0", false);
+
+version.stream().filter(range::test); // { "4.2.0" }
+```
+
+
 Publishing
 ----------
 
