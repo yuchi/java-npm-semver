@@ -1,7 +1,30 @@
 Java _npm_ SemVer
 =================
 
-This is a direct port `node-semver`, great to have npm like semantics in a Java application.
+This is a direct port [`node-semver`](https://github.com/npm/node-semver), great to have npm like semantics in a Java application.
+
+Releases
+--------
+
+Available in the [Maven Central repository](http://search.maven.org/#artifactdetails%7Ccom.github.yuchi%7Cnpm-semver%7C1.0.0%7Cjar).
+
+#### Maven configuration
+
+```xml
+<dependency>
+  <groupId>com.github.yuchi</groupId>
+  <artifactId>npm-semver</artifactId>
+  <version>1.0.0</version>
+</dependency>
+```
+
+#### Gradle configuration
+
+```groovy
+compile group: "com.github.yuchi", name: "npm-semver", version: "1.0.0"
+// or
+compile "com.github.yuchi:npm-semver:1.0.0"
+```
 
 
 Quick usage
